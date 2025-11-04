@@ -134,7 +134,7 @@ export default buildConfig({
                 // Allow up to 3 simultaneous scheduled jobs and set dynamic input
                 return {
                   shouldSchedule: true,
-                  // input: { title: `Hi there..${Date.now()}` },
+                  input: { title: `Hi there..${Date.now()}` },
                 }
               },
             },
@@ -143,48 +143,6 @@ export default buildConfig({
         // This is the function that is run when the task is invoked
         handler: async ({ input, job, req }) => {
           console.log(`Running job ${job.id} to create a new post ${Date.now()}`)
-          // console.log(`Running job ${job.id} to create a new post titled ${input.title}`)
-          // const newPost = await req.payload.create({
-          //   collection: 'posts',
-          //   req,
-          //   draft: true,
-          //   data: {
-          //     title: input.title,
-          //     content: {
-          //       root: {
-          //         type: 'root',
-          //         format: '',
-          //         indent: 0,
-          //         version: 1,
-          //         direction: 'ltr',
-          //         children: [
-          //           {
-          //             type: 'paragraph',
-          //             format: '',
-          //             indent: 0,
-          //             version: 1,
-          //             direction: 'ltr',
-          //             children: [
-          //               {
-          //                 type: 'text',
-          //                 format: 0,
-          //                 indent: 0,
-          //                 version: 1,
-          //                 direction: 'ltr',
-          //                 text: 'This post was created by a job task.',
-          //               },
-          //             ],
-          //           },
-          //         ],
-          //       },
-          //     },
-          //   },
-          // })
-          // return {
-          //   output: {
-          //     postID: `Post-${newPost.id}`,
-          //   },
-          // }
 
           return {
             output: {
