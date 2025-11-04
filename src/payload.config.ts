@@ -3,7 +3,7 @@ import { postgresAdapter } from '@payloadcms/db-postgres'
 
 import sharp from 'sharp' // sharp-import
 import path from 'path'
-import { buildConfig, PayloadRequest } from 'payload'
+import { buildConfig, PayloadRequest, TaskConfig } from 'payload'
 import { fileURLToPath } from 'url'
 
 import { Categories } from './collections/Categories'
@@ -97,6 +97,78 @@ export default buildConfig({
         return authHeader === `Bearer ${process.env.CRON_SECRET}`
       },
     },
-    tasks: [],
+    tasks: [
+      {
+        // Configure this task to automatically retry
+        // up to two times
+        retries: 2,
+
+        // This is a unique identifier for the task
+
+        slug: 'createPost',
+
+        // These are the arguments that your Task will accept
+        inputSchema: [
+          {
+            name: 'title',
+            type: 'text',
+            required: true,
+          },
+        ],
+
+        // These are the properties that the function should output
+        outputSchema: [
+          {
+            name: 'postID',
+            type: 'text',
+            required: true,
+          },
+        ],
+        // This is the function that is run when the task is invoked
+        handler: async ({ input, job, req }) => {
+          const newPost = await req.payload.create({
+            collection: 'posts',
+            req,
+            draft: true,
+            data: {
+              title: input.title,
+              content: {
+                root: {
+                  type: 'root',
+                  format: '',
+                  indent: 0,
+                  version: 1,
+                  direction: 'ltr',
+                  children: [
+                    {
+                      type: 'paragraph',
+                      format: '',
+                      indent: 0,
+                      version: 1,
+                      direction: 'ltr',
+                      children: [
+                        {
+                          type: 'text',
+                          format: 0,
+                          indent: 0,
+                          version: 1,
+                          direction: 'ltr',
+                          text: 'This post was created by a job task.',
+                        },
+                      ],
+                    },
+                  ],
+                },
+              },
+            },
+          })
+          return {
+            output: {
+              postID: `Post-${newPost.id}`,
+            },
+          }
+        },
+      } as TaskConfig<'createPost'>,
+    ],
   },
 })
