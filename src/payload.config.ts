@@ -124,8 +124,15 @@ export default buildConfig({
             required: true,
           },
         ],
+        schedule: [
+          {
+            cron: '* * * * *',
+            queue: 'everyMinute',
+          },
+        ],
         // This is the function that is run when the task is invoked
         handler: async ({ input, job, req }) => {
+          console.log(`Running job ${job.id} to create a new post titled ${input.title}`)
           const newPost = await req.payload.create({
             collection: 'posts',
             req,
@@ -170,5 +177,18 @@ export default buildConfig({
         },
       } as TaskConfig<'createPost'>,
     ],
+    autoRun: [
+      {
+        queue: 'everyMinute',
+        cron: '*/10 * * * * *',
+      },
+    ],
+    shouldAutoRun: async (payload) => {
+      // Tell Payload if it should run jobs or not. This function is optional and will return true by default.
+      // This function will be invoked each time Payload goes to pick up and run jobs.
+      // If this function ever returns false, the cron schedule will be stopped.
+      console.log('shouldAutoRun was called...')
+      return true
+    },
   },
 })
